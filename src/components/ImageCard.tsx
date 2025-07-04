@@ -17,12 +17,15 @@ export default function ImageCard({ uri }: Props) {
 const styles = StyleSheet.create({
   card: {
     borderWidth: 1,
+    borderColor: 'black',
     borderRadius: 10,
     padding: 5,
+    width:500,
+    height:500,
   },
   image: {
-    width: 140,
-    height: 140,
+    width: 500,
+    height: 500,
     borderRadius: 8,
   },
 });

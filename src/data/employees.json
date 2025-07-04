@@ -1,0 +1,28 @@
+[
+    {
+      "id": "EMP001",
+      "name": "Virat Kohli",
+      "image": "src/components/images/virat11.png"
+    },
+    {
+      "id": "EMP002",
+      "name": "Neha Verma",
+      "image": "src/components/images/tejas.png"
+    },
+    {
+      "id": "EMP003",
+      "name": "Rahul Mehta",
+      "image": "https://media.istockphoto.com/id/1889533246/photo/smiling-young-female-student-standing-with-a-laptop-in-a-college-cafeteria.jpg?b=1&s=612x612&w=0&k=20&c=nTD5gTPeCy8DINS4pH_o2haocpnxKsbGQ1pDhUPIkRk="
+    },
+    {
+      "id": "EMP004",
+      "name": "Rajesh Kumar",
+      "image": "https://t4.ftcdn.net/jpg/00/35/30/85/360_F_35308534_WGRVXlymcjQqoRXzeWEfVCOfBHBq9YdW.jpg" 
+    },
+    {
+      "id": "EMP005",
+      "name": "Rajesh Kumar",
+      "image": "https://media.istockphoto.com/id/1351445530/photo/african-student-sitting-in-classroom.jpg?s=612x612&w=0&k=20&c=1ICaZ03iFLzDmxfBkfDkmBGSgj1SDEpsM3eSDgB1KBk=" 
+    }
+  ]
+  

@@ -1,22 +1,19 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { SafeAreaView, StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 import ViewAttendanceScreen from './ViewAttendanceScreen'
 import FaceMatchScreen from '../components/FaceMatchScreen'
-import LiveCaptureScreen from '../components/LiveCaptureScreen'
-import ReferenceImageScreen from '../components/ReferenceImageScreen'
-import LiveMatchScreen from '../components/LiveMatchScreen'
 import CustomCameraCapture from '../components/CustomCameraCapture'
 
 
 const HomeScreen = () => {
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
   
       <FaceMatchScreen />
    
    
 
-    </View>
+    </SafeAreaView>
   )
 }
 

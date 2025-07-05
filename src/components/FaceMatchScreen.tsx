@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, StyleSheet, Alert, ScrollView, Platform, Button } from 'react-native';
+import { View, Text, Image, StyleSheet, Alert, ScrollView, Platform, Button, TouchableOpacity } from 'react-native';
 import * as RNFS from 'react-native-fs';
-import { FaceSDK, MatchFacesImage, MatchFacesRequest, InitConfig, ImageType } from '@regulaforensics/face-sdk';
+import { FaceSDK, MatchFacesImage, MatchFacesRequest, InitConfig, ImageType, LivenessSkipStep, RecordingProcess, LivenessType, CameraPosition } from '@regulaforensics/face-sdk';
 import CustomCameraCapture from './CustomCameraCapture';
 import employees from '../data/employees.json';
 const faceSdk = FaceSDK.instance;
@@ -14,7 +14,22 @@ export default function FaceMatchScreen() {
   const [bestMatch, setBestMatch] = useState<{ name: string; score: number; matched: boolean } | null>(null);
 
   useEffect(() => {
-    initializeSDK();
+    faceSdk.startLiveness({
+      config: {
+        cameraSwitchEnabled: true,
+        livenessType: LivenessType.ACTIVE,
+        closeButtonEnabled: true,
+        torchButtonEnabled: true,
+        vibrateOnSteps: true,
+        copyright: true,
+        cameraPositionIOS: CameraPosition.FRONT,
+        cameraPositionAndroid: CameraPosition.FRONT,
+        locationTrackingEnabled: true,
+        attemptsCount: 3,
+        recordingProcess: RecordingProcess.ASYNCHRONOUS_UPLOAD,
+        skipStep: [LivenessSkipStep.ONBOARDING_STEP, LivenessSkipStep.SUCCESS_STEP]
+      }
+    })
   }, []);
 
   const initializeSDK = async () => {
@@ -33,6 +48,7 @@ export default function FaceMatchScreen() {
       return null;
     }
   };
+
   const convertToBase64 = async (imageUrl: string): Promise<string | null> => {
     try {
       const response = await fetch(imageUrl);
@@ -53,7 +69,7 @@ export default function FaceMatchScreen() {
   };
 
   const handleCapture = async (base64Live: string) => {
-    setStatus('Matching...');
+    setStatus('Processing captured image...');
     setUiImage2(`data:image/png;base64,${base64Live}`);
     setBestMatch(null);
 
@@ -65,10 +81,12 @@ export default function FaceMatchScreen() {
     const timeoutId = setTimeout(() => {
       if (!matchFound) {
         setBestMatch({ name: 'Unknown', score: bestScore, matched: false });
-        Alert.alert('Timeout', ' No match found within 10 seconds.');
+        Alert.alert('Timeout', 'No match found within 10 seconds. Please try again with better lighting or positioning.');
         setStatus('Ready');
       }
     }, 10000); 
+
+    setStatus('Matching against employee database...');
 
     for (const emp of employees) {
       const refBase64 = await convertToBase64(emp.image);
@@ -92,8 +110,8 @@ export default function FaceMatchScreen() {
           clearTimeout(timeoutId);
           const percent = (matched.similarity * 100).toFixed(2);
           setBestMatch({ name: matchedEmployee ?? '', score: matched.similarity, matched: true });
-          Alert.alert('✅ Match Found', `${matchedEmployee ?? ''}\nSimilarity: ${percent}%`);
-          setStatus('Ready');
+          Alert.alert('✅ Match Found!', `${matchedEmployee ?? ''}\nSimilarity: ${percent}%\n\nEmployee verified successfully!`);
+          setStatus('Match successful');
           return;
         }
       } catch (e) {
@@ -105,7 +123,7 @@ export default function FaceMatchScreen() {
 
     if (!matchFound) {
       setBestMatch({ name: 'Unknown', score: bestScore, matched: false });
-      Alert.alert(' Match Failed', 'No matching employee found.');
+      Alert.alert(' No Match Found', `No matching employee found.\nBest similarity: ${(bestScore * 100).toFixed(2)}%\n\nPlease ensure:\n• Good lighting\n• Face clearly visible\n• No obstructions`);
     }
 
     setStatus('Ready');
@@ -118,13 +136,7 @@ export default function FaceMatchScreen() {
 
   if (showCamera && capturePosition !== null) {
     return (
-      <CustomCameraCapture
-        onCapture={(base64: string) => {
-          setShowCamera(false);
-          handleCapture(base64);
-        }}
-        onCancel={() => setShowCamera(false)}
-      />
+      <CustomCameraCapture />
     );
   }
 
@@ -157,20 +169,30 @@ export default function FaceMatchScreen() {
         </View>
       )}
 
-      <View style={styles.buttonGroup}>
-        <Button
-          title="Start Face Capture"
-          onPress={() => {
-            setCapturePosition(2);
-            setShowCamera(true);
-            setStatus('Capturing...');
-            setUiImage2(null);
-            setBestMatch(null);
-          
-          }}
-        />
-        <Button title="Clear" onPress={clearAll} color="#FF3B30" />
-      </View>
+<View style={styles.buttonGroup}>
+  <TouchableOpacity
+    style={styles.startButton}
+    onPress={() => {
+      setCapturePosition(2);
+      setShowCamera(true);
+      setStatus('Opening camera...');
+      setUiImage2(null);
+      setBestMatch(null);
+    }}
+  >
+    <Text style={styles.buttonText}> Start Face Capture</Text>
+  </TouchableOpacity>
+
+  <TouchableOpacity
+    style={styles.clearButton}
+    onPress={clearAll}
+  >
+    <Text style={styles.buttonText}> Clear All</Text>
+  </TouchableOpacity>
+</View>
+
+
+
     </ScrollView>
   );
 }
@@ -224,5 +246,47 @@ const styles = StyleSheet.create({
     marginTop: 20,
     width: '100%',
     gap: 10,
+    justifyContent: 'space-around',
+  },
+  startButton: {
+    backgroundColor: '#28a745', 
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+    minWidth: 150,
+    elevation: 3,
+  },
+  clearButton: {
+    backgroundColor: '#FF3B30', 
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+    minWidth: 100,
+    elevation: 3,
+  },
+  buttonText: {
+    color: 'white',
+    fontWeight: '600',
+    fontSize: 16,
+  },
+  instructionsContainer: {
+    marginTop: 20,
+    padding: 15,
+    backgroundColor: '#f0f0f0',
+    borderRadius: 10,
+    width: '100%',
+    alignItems: 'center',
+  },
+  instructionsTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  instructionsText: {
+    fontSize: 14,
+    textAlign: 'left',
+    lineHeight: 20,
   },
 });

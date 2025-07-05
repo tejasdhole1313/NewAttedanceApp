@@ -1761,6 +1761,11 @@
   resolved "https://registry.npmjs.org/@regulaforensics/face-sdk/-/face-sdk-7.1.338.tgz"
   integrity sha512-c/oaglDecdrdfdRVnnKJDnk7E9secqeKVhoiKVhHCFLUMM7sit5djAa7P8aVFH330vT0GbGnyzUQooFJTvSleg==
 
+"@regulaforensics/react-native-face-core-match@^7.1.290":
+  version "7.1.290"
+  resolved "https://registry.yarnpkg.com/@regulaforensics/react-native-face-core-match/-/react-native-face-core-match-7.1.290.tgz#7c056c9fd68fc5cbd345edd7051d405cdf2ee5f2"
+  integrity sha512-218FbGi/730QzjOJ76c/c3AZ4racvbTsMzzz2tRnVU7qBFmm+KShvLKzpJH/Y66VlczIjRFrqS77ldmlhFSIew==
+
 "@sideway/address@^4.1.5":
   version "4.1.5"
   resolved "https://registry.npmjs.org/@sideway/address/-/address-4.1.5.tgz"

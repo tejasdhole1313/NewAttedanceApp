@@ -55,15 +55,21 @@ const CustomCameraCapture = () => {
     try {
       const response = await fetch(imageUrl);
       const blob = await response.blob();
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          const base64 = reader.result?.toString().split(',')[1];
-          base64 ? resolve(base64) : reject('Failed to convert');
-        };
-        reader.onerror = reject;
-        reader.readAsDataURL(blob);
-      });
+   return new Promise((resolve, reject) => {
+  const reader = new FileReader();
+  reader.onloadend = () => {
+    try {
+      const result = reader.result?.toString() || '';
+      const base64 = result.split(',')[1];
+      resolve(base64 || '');
+    } catch (e) {
+      reject('Base64 conversion failed');
+    }
+  };
+  reader.onerror = reject;
+  reader.readAsDataURL(blob);
+});
+
     } catch (err) {
       console.log('Error loading image:', err);
       return null;
@@ -265,6 +271,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   popupContainer: {
+    width: '100%',
     backgroundColor: '#fff',
     borderRadius: 12,
     padding: 20,

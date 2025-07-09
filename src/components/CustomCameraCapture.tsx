@@ -5,7 +5,6 @@ import { FaceSDK, LivenessType, LivenessStatus, CameraPosition, RecordingProcess
 import employees from '../data/employees.json';
 import { captureFrame } from '../utils/captureFrame';
 import CacheStatus from './CacheStatus';
-
 const CustomCameraCapture = () => {
   const device = useCameraDevice('back');
   const { requestPermission } = useCameraPermission();
@@ -17,7 +16,7 @@ const CustomCameraCapture = () => {
   const [popupMessage, setPopupMessage] = useState('');
   const [popupSuccess, setPopupSuccess] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
-
+  const imageBase64Cache = useRef<{ [key: string]: string }>({});
   useEffect(() => {
     (async () => {
       const granted = await requestPermission();
@@ -26,16 +25,17 @@ const CustomCameraCapture = () => {
     const timeInterval = setInterval(() => {
       setCurrentTime(new Date());
     }, 1000);
-
     return () => clearInterval(timeInterval);
   }, []);
-
+  useEffect(() => {
+    employees.forEach(emp => {
+      convertToBase64(emp.image);
+    });
+  }, []);
   const takePicture = async () => {
     if (isProcessing || !isReady || !cameraRef.current) return;
-
     setIsProcessing(true);
     setStatus('Capturing...');
-
     try {
       const base64 = await captureFrame(cameraRef as React.RefObject<Camera>);
       setStatus('Processing image...');
@@ -52,42 +52,43 @@ const CustomCameraCapture = () => {
   };
 
   const convertToBase64 = async (imageUrl: string): Promise<string | null> => {
+    if (imageBase64Cache.current[imageUrl]) {
+      return imageBase64Cache.current[imageUrl];
+    }
     try {
       const response = await fetch(imageUrl);
       const blob = await response.blob();
-   return new Promise((resolve, reject) => {
-  const reader = new FileReader();
-  reader.onloadend = () => {
-    try {
-      const result = reader.result?.toString() || '';
-      const base64 = result.split(',')[1];
-      resolve(base64 || '');
-    } catch (e) {
-      reject('Base64 conversion failed');
-    }
-  };
-  reader.onerror = reject;
-  reader.readAsDataURL(blob);
-});
-
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          try {
+            const result = reader.result?.toString() || '';
+            const base64 = result.split(',')[1];
+            imageBase64Cache.current[imageUrl] = base64 || '';
+            resolve(base64 || '');
+          } catch (e) {
+            reject('Base64 conversion failed');
+          }
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
     } catch (err) {
       console.log('Error loading image:', err);
       return null;
     }
   };
-
   const matchWithDatabase = async (base64Live: string) => {
     const liveImage = new MatchFacesImage(base64Live, ImageType.LIVE);
     let bestMatchName = '';
     let bestScore = 0;
 
     setStatus('Matching against database...');
-
     for (const emp of employees) {
       const refBase64 = await convertToBase64(emp.image);
       if (!refBase64) continue;
 
-      const refImage = new MatchFacesImage(refBase64, ImageType.PRINTED);
+      const refImage = new MatchFacesImage(refBase64, ImageType.PRINTED); 
       const request = new MatchFacesRequest([refImage, liveImage]);
 
       try {
@@ -99,7 +100,6 @@ const CustomCameraCapture = () => {
           bestScore = matched.similarity;
           bestMatchName = emp.name;
         }
-
         if (matched?.similarity >= 0.85) {
           const timeString = currentTime.toLocaleTimeString();
           const dateString = currentTime.toLocaleDateString();
@@ -111,20 +111,17 @@ const CustomCameraCapture = () => {
         console.warn('Match error:', e);
       }
     }
-
     showTemporaryMessage(`❌ No Match Found\nBest: ${bestMatchName || 'N/A'} (${(bestScore * 100).toFixed(2)}%)`, false);
     setStatus('Ready');
   };
-
   const showTemporaryMessage = (message: string, success: boolean) => {
     setPopupMessage(message);
     setPopupSuccess(success);
     setShowPopup(true);
-    setStatus('Start');
-
+    setStatus('ready');
     setTimeout(() => {
       setShowPopup(false);
-      setStatus('Start');
+      setStatus('ready');
       setIsProcessing(false);
     }, 2000);
   };
@@ -151,7 +148,7 @@ const CustomCameraCapture = () => {
       <View style={styles.overlay}>
         <View style={styles.topControls}>
           <Text style={styles.statusText}>Status: {status}</Text>
-        </View>
+        </View>  
 
         <View style={styles.bottomContainer}>
           {isProcessing ? (
@@ -166,7 +163,6 @@ const CustomCameraCapture = () => {
           )}
         </View>
       </View>
-
       <Modal
         visible={showPopup}
         transparent={true}

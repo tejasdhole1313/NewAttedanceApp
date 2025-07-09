@@ -1,17 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import CacheManager from '../utils/cacheManager';
-
 interface CacheInfo {
   memoryCacheSize: number;
   persistentCacheSize: number;
   totalCached: number;
 }
-
 const CacheStatus: React.FC = () => {
   const [cacheInfo, setCacheInfo] = useState<CacheInfo | null>(null);
   const [isVisible, setIsVisible] = useState(false);
-
   const updateCacheInfo = async () => {
     try {
       const info = await CacheManager.getCacheInfo();
@@ -20,7 +17,6 @@ const CacheStatus: React.FC = () => {
       console.error('Failed to get cache info:', error);
     }
   };
-
   const handleClearCache = async () => {
     try {
       await CacheManager.clearCache();
@@ -30,7 +26,6 @@ const CacheStatus: React.FC = () => {
       console.error('Failed to clear cache:', error);
     }
   };
-
   useEffect(() => {
     updateCacheInfo();
   }, []);

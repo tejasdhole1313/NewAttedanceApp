@@ -8,11 +8,7 @@ import CustomCameraCapture from '../components/CustomCameraCapture'
 const HomeScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
-  
       <FaceMatchScreen />
-   
-   
-
     </SafeAreaView>
   )
 }

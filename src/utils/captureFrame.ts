@@ -17,7 +17,6 @@ export const captureFrame = async (cameraRef: React.RefObject<Camera>): Promise<
     }
 
     console.log('Photo path:', photo.path);
-    // Use the path directly without adding 'file://' prefix
     const exists = await FS.exists(photo.path);
     console.log('File exists:', exists);
     if (!exists) {

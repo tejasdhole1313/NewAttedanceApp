@@ -1,13 +1,11 @@
 import { MMKV } from 'react-native-mmkv';
 import { Platform } from 'react-native';
-
-// Create MMKV storage instance for image cache
 const imageCache = new MMKV({
   id: 'image-cache',
   encryptionKey: 'image-cache-key'
 });
 
-// In-memory cache for faster access
+
 const memoryCache = new Map<string, string>();
 
 interface CacheEntry {
@@ -16,8 +14,8 @@ interface CacheEntry {
   url: string;
 }
 
-const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
-const MAX_CACHE_SIZE = 50; // Maximum number of cached images
+const CACHE_DURATION = 24 * 60 * 60 * 1000; 
+const MAX_CACHE_SIZE = 50; 
 
 export class ImageCacheManager {
   private static instance: ImageCacheManager;
@@ -67,12 +65,9 @@ export class ImageCacheManager {
     }
 
     expiredKeys.forEach(key => this.cache.delete(key));
-
-    // If cache is still too large, remove oldest entries
     if (this.cache.size > MAX_CACHE_SIZE) {
       const entries = Array.from(this.cache.entries());
-      entries.sort((a, b) => a[1].timestamp - b[1].timestamp);
-      
+      entries.sort((a, b) => a[1].timestamp - b[1].timestamp); 
       const toRemove = entries.slice(0, this.cache.size - MAX_CACHE_SIZE);
       toRemove.forEach(([key]) => this.cache.delete(key));
     }

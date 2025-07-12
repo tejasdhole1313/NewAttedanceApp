@@ -12,7 +12,6 @@ export default function FaceMatchScreen() {
   const [showCamera, setShowCamera] = useState(false);
   const [capturePosition, setCapturePosition] = useState<number | null>(null);
   const [bestMatch, setBestMatch] = useState<{ name: string; score: number; matched: boolean } | null>(null);
-
   useEffect(() => {
     faceSdk.startLiveness({
       config: {
@@ -72,12 +71,10 @@ export default function FaceMatchScreen() {
     setStatus('Processing captured image...');
     setUiImage2(`data:image/png;base64,${base64Live}`);
     setBestMatch(null);
-
     const liveImage = new MatchFacesImage(base64Live, ImageType.LIVE);
     let bestScore = 0;
     let matchedEmployee: string | null = null;
     let matchFound = false;
-
     const timeoutId = setTimeout(() => {
       if (!matchFound) {
         setBestMatch({ name: 'Unknown', score: bestScore, matched: false });
@@ -85,7 +82,6 @@ export default function FaceMatchScreen() {
         setStatus('Ready');
       }
     }, 10000); 
-
     setStatus('Matching against employee database...');
 
     for (const emp of employees) {
@@ -132,6 +128,7 @@ export default function FaceMatchScreen() {
     setUiImage2(null);
     setBestMatch(null);
     setStatus('Ready');
+    
   };
 
   if (showCamera && capturePosition !== null) {
@@ -178,11 +175,11 @@ export default function FaceMatchScreen() {
       setStatus('Opening camera...');
       setUiImage2(null);
       setBestMatch(null);
+    
     }}
   >
     <Text style={styles.buttonText}> Start Face Capture</Text>
   </TouchableOpacity>
-
   <TouchableOpacity
     style={styles.clearButton}
     onPress={clearAll}
@@ -190,9 +187,6 @@ export default function FaceMatchScreen() {
     <Text style={styles.buttonText}> Clear All</Text>
   </TouchableOpacity>
 </View>
-
-
-
     </ScrollView>
   );
 }

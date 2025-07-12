@@ -6,7 +6,7 @@ import employees from '../data/employees.json';
 import { captureFrame } from '../utils/captureFrame';
 import CacheStatus from './CacheStatus';
 const CustomCameraCapture = () => {
-  const device = useCameraDevice('back');
+  const device = useCameraDevice('front');
   const { requestPermission } = useCameraPermission();
   const cameraRef = useRef<Camera>(null);
   const [isReady, setIsReady] = useState(false);
@@ -48,6 +48,7 @@ const CustomCameraCapture = () => {
       return;
     } finally {
       setIsProcessing(false);
+      
     }
   };
 
@@ -120,9 +121,9 @@ const CustomCameraCapture = () => {
     setShowPopup(true);
     setStatus('ready');
     setTimeout(() => {
-      setShowPopup(false);
-      setStatus('ready');
-      setIsProcessing(false);
+    setShowPopup(false);
+    setStatus('ready');
+    setIsProcessing(false);
     }, 2000);
   };
 
@@ -144,7 +145,6 @@ const CustomCameraCapture = () => {
         photo={true}
         onInitialized={() => setIsReady(true)}
       />
-
       <View style={styles.overlay}>
         <View style={styles.topControls}>
           <Text style={styles.statusText}>Status: {status}</Text>
